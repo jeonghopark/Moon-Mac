@@ -2,10 +2,10 @@
 
 #include "ofMain.h"
 
-struct Point3D{
+typedef struct{
 	float length;
 	ofPoint degree3D;
-};
+} Point3D;
 
 class ofApp : public ofBaseApp{
 
@@ -30,4 +30,7 @@ public:
 
 	vector<ofVec3f> point3DRaw;
 	float distance;
+    
+    ofSpherePrimitive sphere;
+
 };

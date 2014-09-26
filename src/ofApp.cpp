@@ -1,5 +1,7 @@
 // http://en.wikibooks.org/wiki/Mathematica/Uniform_Spherical_Distribution
 // http://mathworld.wolfram.com/SpherePointPicking.html
+// http://mathworld.wolfram.com/SphericalCoordinates.html
+// http://forum.openframeworks.cc/t/vector-maths-cross-vectors-and-a-circle-on-a-sphere/15760/9
 
 #include "ofApp.h"
 
@@ -16,18 +18,20 @@ void ofApp::setup(){
 
 	for (int i = 0; i < point3D.size(); i++){
 		point3D[i].length = 300;
-		point3D[i].degree3D = ofPoint(ofRandom(PI), ofRandom(TWO_PI), ofRandom(360));
+		point3D[i].degree3D = ofPoint(acos(2*ofRandom(1)-1), ofRandom(TWO_PI), ofRandom(360));
 
-		float _y = point3D[i].length * sin(point3D[i].degree3D.y);
-		float _yCos = point3D[i].length * cos(point3D[i].degree3D.y);
-		float _x = _yCos * cos(point3D[i].degree3D.x);
-		float _z = _yCos * sin(point3D[i].degree3D.x);
-		ofVec3f _point3D = ofVec3f(_x, _y, _z);
+		float _x = point3D[i].length * cos(point3D[i].degree3D.y) * sin(point3D[i].degree3D.x);
+        float _y = point3D[i].length * cos(point3D[i].degree3D.x);
+		float _z = point3D[i].length * sin(point3D[i].degree3D.y) * sin(point3D[i].degree3D.x);
+
+        ofVec3f _point3D = ofVec3f(_x, _y, _z);
 		mesh.addVertex(_point3D);
+        mesh.addNormal(_point3D);
 
 		ofColor _c = ofColor(255, 70);
 		mesh.addColor(_c);
 		point3DRaw[i] = _point3D;
+        
 	}
 
 	distance = 50;
@@ -58,7 +62,28 @@ void ofApp::draw(){
 	
 	mesh.draw();
 
-	cam.end();
+    ofLine( mesh.getVertex(0), ofVec3f(0,0,0) );
+
+    ofVec3f p1 = ofVec3f(0,0,0);
+    ofVec3f p2 = mesh.getVertex(0);
+    
+    ofVec3f norm = (p2 - p1).normalize();
+    
+    ofVec3f u = norm.crossed(ofVec3f(1, 0, 0)); //x axis unit vector
+    ofVec3f v = norm.crossed(u);
+    
+    sphere.setRadius(2);
+    
+    float r = 50;
+    
+    for (int t = 0; t < 360; t += 10) {
+        float rad = ofDegToRad(t);
+        ofVec3f pt = p2 + r * cos(rad) * u + r * sin(rad) * v;
+        sphere.setPosition(pt);
+        sphere.draw();
+    }
+    
+    cam.end();
 
 }
 
