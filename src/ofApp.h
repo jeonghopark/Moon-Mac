@@ -3,9 +3,24 @@
 #include "ofMain.h"
 
 typedef struct{
-	float length;
+	
+    float length;
 	ofPoint degree3D;
+    ofVec3f point3DRaw;
+    
+    ofVec3f p1;
+    ofVec3f p2;
+    
+    ofVec3f norm;
+    
+    ofVec3f u; //x axis unit vector
+    ofVec3f v;
+
+    ofMesh createrMesh;
+    float radiusCreater;
+    
 } Point3D;
+
 
 class ofApp : public ofBaseApp{
 
@@ -28,9 +43,15 @@ public:
 	vector<Point3D> point3D;
 	ofEasyCam cam;
 
-	vector<ofVec3f> point3DRaw;
 	float distance;
     
-    ofSpherePrimitive sphere;
 
+    bool fullScreen;
+    ofLight light;
+    
+    
+    ofSpherePrimitive sphere;
+    
+    ofMesh baseLunar;
+    
 };

@@ -3,6 +3,8 @@
 // http://mathworld.wolfram.com/SphericalCoordinates.html
 // http://forum.openframeworks.cc/t/vector-maths-cross-vectors-and-a-circle-on-a-sphere/15760/9
 
+
+
 #include "ofApp.h"
 
 //--------------------------------------------------------------
@@ -10,14 +12,20 @@ void ofApp::setup(){
 
 	ofBackground(10);
 
+    ofEnableDepthTest();
+//    ofEnableBlendMode(OF_BLENDMODE_ADD);
+    
 	mesh.setMode(OF_PRIMITIVE_LINES);
+    baseLunar.setMode(OF_PRIMITIVE_TRIANGLES);
+    
 	glPointSize(1);
 
-	point3D.resize(1000);
-	point3DRaw.resize(point3D.size());
+	point3D.resize(2500);
 
 	for (int i = 0; i < point3D.size(); i++){
-		point3D[i].length = 300;
+        
+//		point3D[i].length = ofRandom(0.95,1.01)*ofGetHeight()*0.4;
+        point3D[i].length = ofGetHeight()*0.4;
 		point3D[i].degree3D = ofPoint(acos(2*ofRandom(1)-1), ofRandom(TWO_PI), ofRandom(360));
 
 		float _x = point3D[i].length * cos(point3D[i].degree3D.y) * sin(point3D[i].degree3D.x);
@@ -28,10 +36,30 @@ void ofApp::setup(){
 		mesh.addVertex(_point3D);
         mesh.addNormal(_point3D);
 
-		ofColor _c = ofColor(255, 70);
+		ofColor _c = ofColor(255, 80);
 		mesh.addColor(_c);
-		point3DRaw[i] = _point3D;
+		point3D[i].point3DRaw = _point3D;
         
+        point3D[i].radiusCreater = ofRandom(20);
+        
+        point3D[i].p1 = ofVec3f(0,0,0);
+        point3D[i].p2 = mesh.getVertex(i);
+        point3D[i].createrMesh.setMode(OF_PRIMITIVE_LINE_STRIP);
+
+        point3D[i].norm = (point3D[i].p2 - point3D[i].p1).normalize();
+        
+        point3D[i].u = point3D[i].norm.crossed(ofVec3f(1, 0, 0)); //x axis unit vector
+        point3D[i].v = point3D[i].norm.crossed(point3D[i].u);
+
+        for (int t = 0; t <= 360; t += 10) {
+            float rad = ofDegToRad(t);
+            ofVec3f pt = point3D[i].p2 + point3D[i].radiusCreater * cos(rad) * point3D[i].u + point3D[i].radiusCreater * sin(rad) * point3D[i].v;
+
+            ofColor _c = ofColor(255, 120);
+            point3D[i].createrMesh.addColor(_c);
+            point3D[i].createrMesh.addVertex(pt);
+        }
+
 	}
 
 	distance = 50;
@@ -48,43 +76,44 @@ void ofApp::setup(){
 			}
 		}
 	}
+    
+    sphere.setRadius(point3D[0].length*0.99);
+    baseLunar = sphere.getMesh();
+    cout << baseLunar.getNumVertices() << endl;
+    for (int i=0; i<baseLunar.getNumVertices(); i++) {
+        ofColor _c = ofColor(0, 150);
+        baseLunar.addColor(_c);
+    }
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
 
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
 
-	cam.begin();
+    cam.begin();
 	
+    ofPushStyle();
+    baseLunar.draw();
+    ofPopStyle();
+    
 	mesh.draw();
 
-    ofLine( mesh.getVertex(0), ofVec3f(0,0,0) );
-
-    ofVec3f p1 = ofVec3f(0,0,0);
-    ofVec3f p2 = mesh.getVertex(0);
-    
-    ofVec3f norm = (p2 - p1).normalize();
-    
-    ofVec3f u = norm.crossed(ofVec3f(1, 0, 0)); //x axis unit vector
-    ofVec3f v = norm.crossed(u);
-    
-    sphere.setRadius(2);
-    
-    float r = 50;
-    
-    for (int t = 0; t < 360; t += 10) {
-        float rad = ofDegToRad(t);
-        ofVec3f pt = p2 + r * cos(rad) * u + r * sin(rad) * v;
-        sphere.setPosition(pt);
-        sphere.draw();
+    for (int i=0; i<point3D.size(); i++) {
+        point3D[i].createrMesh.draw();
+        ofPushStyle();
+        ofSetColor(255, 70);
+        ofLine(point3D[i].p2*0.9, point3D[i].p2*1.05);
+        ofPopStyle();
     }
-    
-    cam.end();
 
+    cam.end();
+    
 }
 
 //--------------------------------------------------------------
@@ -94,6 +123,9 @@ void ofApp::keyPressed(int key){
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
+
+    if(key=='f') fullScreen = !fullScreen;
+    ofSetFullscreen(fullScreen);
 
 }
 
