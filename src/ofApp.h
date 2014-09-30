@@ -1,11 +1,11 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxGui.h"
+
 
 typedef struct{
 	
-    float length;
-	ofPoint degree3D;
     ofVec3f point3DRaw;
     
     ofVec3f p1;
@@ -18,6 +18,12 @@ typedef struct{
 
     ofMesh createrMesh;
     float radiusCreater;
+    ofVbo vbo;
+    
+    float theta;
+    float phi;
+    float radius;
+
     
 } Point3D;
 
@@ -38,8 +44,9 @@ public:
 	void windowResized(int w, int h);
 	void dragEvent(ofDragInfo dragInfo);
 	void gotMessage(ofMessage msg);
-
+    
 	ofMesh mesh;
+    ofMesh darkMesh;
 	vector<Point3D> point3D;
 	ofEasyCam cam;
 
@@ -53,5 +60,25 @@ public:
     ofSpherePrimitive sphere;
     
     ofMesh baseLunar;
+    
+    ofVbo vboLine;
+    ofMesh allMesh;
+    
+    
+    bool oneShot;
+    
+    int creatorNum;
+    
+    
+    bool bHide;
+    
+    ofxIntSlider numCreators;
+    ofxButton reSetting;
+    ofxToggle innerCircle;
+    ofxPanel gui;
+    ofxFloatSlider randomHeight;
+    ofxFloatSlider innerCircleSize;
+    
+    void setPoint3D(int _num);
     
 };
