@@ -11,36 +11,41 @@
 void ofApp::setup(){
     
     ofBackground(10);
+    ofSetFrameRate(60);
     
     ofEnableAntiAliasing();
     ofEnableDepthTest();
-    //    ofEnableBlendMode(OF_BLENDMODE_ADD);
+//        ofEnableBlendMode(OF_BLENDMODE_ADD);
     
+    baseColor = ofColor::fromHsb(255, 0, 255, 120);
+
     mesh.setMode(OF_PRIMITIVE_LINES);
     darkMesh.setMode(OF_PRIMITIVE_TRIANGLES);
     baseLunar.setMode(OF_PRIMITIVE_TRIANGLES);
     allMesh.setMode(OF_PRIMITIVE_LINES);
     
-    creatorNum = 2500;
+    creatorNum = 1200;
     
     gui.setup();
     gui.add(numCreators.setup("Num Creators", 1200, 0, 4000));
     gui.add(randomHeight.setup("Random Height", 0.025, 0, 0.05));
     gui.add(reSetting.setup("ReDrawing"));
     gui.add(innerCircle.setup("Base Sphere", true));
-    gui.add(innerCircleSize.setup("Inner Size", 1, 0.9, 1.1));
+    gui.add(innerCircleSize.setup("Inner Size", 0.95, 0.9, 1.1));
     
     setPoint3D(creatorNum);
     
 
     glPointSize(1);
     
-    fullScreen = true;
+    fullScreen = false;
     oneShot = false;
+    bHide = true;
 //    innerCircle = true;
     
     light.setAttenuation();
     light.setPosition(0,0,-1000);
+    
     
 }
 
@@ -72,10 +77,12 @@ void ofApp::draw(){
         point3D[i].vbo.draw(GL_LINE_STRIP, 0, 36);
         
         ofPushStyle();
-        ofSetColor(255, 70);
+        ofSetColor(baseColor);
         ofLine(point3D[i].p2*0.9, point3D[i].p2*1.05);
         ofPopStyle();
     }
+    
+    arcDrawing();
     
     cam.end();
     
@@ -113,7 +120,6 @@ void ofApp::setPoint3D(int _num) {
         point3D[i].theta = ofRandom(TWO_PI);
         point3D[i].phi = acos(2*ofRandom(1)-1);
         
-        
         float _x = point3D[i].radius * cos(point3D[i].theta) * sin(point3D[i].phi);
         float _y = point3D[i].radius * cos(point3D[i].phi);
         float _z = point3D[i].radius * sin(point3D[i].theta) * sin(point3D[i].phi);
@@ -124,8 +130,7 @@ void ofApp::setPoint3D(int _num) {
         
         darkMesh.addVertex(_point3D);
         
-        
-        ofColor _c = ofColor(255, 80);
+        ofColor _c = ofColor(baseColor);
         mesh.addColor(_c);
 
         ofColor _cB = ofColor(0, 80);
@@ -147,12 +152,13 @@ void ofApp::setPoint3D(int _num) {
             float rad = ofDegToRad(t);
             ofVec3f pt = point3D[i].p2 + point3D[i].radiusCreater * cos(rad) * point3D[i].u + point3D[i].radiusCreater * sin(rad) * point3D[i].v;
             
-            ofColor _c = ofColor(255, 120);
+            ofColor _c = ofColor(baseColor);
             point3D[i].createrMesh.addColor(_c);
             point3D[i].createrMesh.addVertex(pt);
             
             point3D[i].vbo.setMesh(point3D[i].createrMesh, GL_STATIC_DRAW);
         }
+        
     }
     
     distance = 50;
@@ -185,6 +191,34 @@ void ofApp::setPoint3D(int _num) {
     
 }
 
+
+//--------------------------------------------------------------
+void ofApp::arcDrawing(){
+    
+    ofPushStyle();
+    ofSetColor(baseColor);
+    
+    for (int i=0; i<mesh.getNumVertices()-1; i+=2) {
+        ofVec3f _startPoint = mesh.getVertex(i);
+        ofVec3f _endPoint = mesh.getVertex(i+1);
+        
+        ofVec3f _middlePoint = ((_endPoint-_startPoint)*0.5).normalize();
+        
+        ofVec3f _norm = (_middlePoint - ofVec3f(0,0,0)).normalize();
+        
+        ofVec3f _u = _norm.crossed(ofVec3f(0, 0, 1)); //x axis unit vector
+        ofVec3f _v = _norm.crossed(_u);
+        
+        ofVec3f _pt = _middlePoint * point3D[i].radius;
+        
+        ofLine(_pt, _startPoint);
+        ofLine(_pt, _endPoint);
+        
+    }
+    ofPopStyle();
+
+    
+}
 
 
 

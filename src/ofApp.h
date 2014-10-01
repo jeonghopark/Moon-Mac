@@ -81,4 +81,9 @@ public:
     
     void setPoint3D(int _num);
     
+    void arcDrawing();
+    ofVbo arcLine;
+    
+    ofColor baseColor;
+    
 };
