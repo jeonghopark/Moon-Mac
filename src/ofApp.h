@@ -84,6 +84,9 @@ public:
     void arcDrawing();
     ofVbo arcLine;
     
+    void satellit();
+    
     ofColor baseColor;
+    
     
 };
