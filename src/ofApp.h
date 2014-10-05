@@ -6,6 +6,8 @@
 
 typedef struct{
 	
+    ofVec3f degree3D;
+    
     ofVec3f point3DRaw;
     
     ofVec3f p1;
@@ -88,5 +90,8 @@ public:
     
     ofColor baseColor;
     
+    void polarPositionProb();
+    
+    ofMesh creatorDraw(Point3D _p3D, ofVec3f &_p);
     
 };
