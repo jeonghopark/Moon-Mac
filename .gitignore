@@ -2,8 +2,8 @@
 *
 
 #Whitelist subdirectories
-!/bin/data
-!/src
+!bin/data/
+!src/
 
 #Whitelist the gitignore itself
 !.gitignore
