@@ -20,7 +20,7 @@ typedef struct{
 
     ofMesh createrMesh;
     float radiusCreater;
-    ofVbo vbo;
+    ofVbo vboCreator;
     
     float theta;
     float phi;
@@ -92,6 +92,10 @@ public:
     
     void polarPositionProb();
     
-    ofMesh creatorDraw(Point3D _p3D, ofVec3f &_p);
+    void creatorDraw();
+    void creatorSetting();
     
+    void innerSphere();
+    
+    void normalLineDraw();
 };
