@@ -77,9 +77,13 @@ public:
     ofxIntSlider numCreators;
     ofxButton reSetting;
     ofxToggle innerCircle;
+    ofxToggle textureOnOff;
+    ofxToggle arcOnOff;
+    ofxToggle meshOnOff;
     ofxPanel gui;
     ofxFloatSlider randomHeight;
     ofxFloatSlider innerCircleSize;
+    ofxLabel frameRate;
     
     void setPoint3D(int _num);
     
@@ -98,4 +102,11 @@ public:
     void innerSphere();
     
     void normalLineDraw();
+    
+    ofImage texture;
+    void textureDraw();
+    
+    
+//    ofFbo fbo;
+    
 };
