@@ -107,6 +107,7 @@ public:
     void textureDraw();
     
     
-//    ofFbo fbo;
+    ofFbo fbo;
+    ofPoint posSize;
     
 };

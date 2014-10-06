@@ -18,6 +18,9 @@ void ofApp::setup(){
     ofEnableAlphaBlending();
 //    ofEnableBlendMode(OF_BLENDMODE_ADD);
     
+    posSize.x = 4961;
+    posSize.y = 7016;
+    fbo.allocate(posSize.x, posSize.y, GL_RGBA);
     
     
     ofDisableArbTex();
@@ -45,8 +48,8 @@ void ofApp::setup(){
     gui.add(innerCircleSize.setup("Inner Size", 0.95, 0.9, 1.1));
     gui.add(frameRate.setup("FPS", ""));
     
-    //    setPoint3D();
-    polarPositionProb();
+    setPoint3D(creatorNum);
+//    polarPositionProb();
     creatorSetting();
     
     glPointSize(1);
@@ -59,25 +62,18 @@ void ofApp::setup(){
 //    light.setAttenuation();
     light.setPosition(-100, 100, 100);
 
-    
-}
 
-//--------------------------------------------------------------
-void ofApp::update(){
     
-    if (reSetting) {
-        setPoint3D(numCreators);
-        creatorSetting();
-    }
     
-    frameRate = ofToString(ofGetFrameRate(),1);
-}
-
-
-//--------------------------------------------------------------
-void ofApp::draw(){
+    fbo.begin();
     
-    cam.begin();
+    ofClear(0,0);
+    
+    ofTranslate(posSize.x*0.5, posSize.y*0.5);
+    
+    ofScale(3, 3, 3);
+    
+//    cam.begin();
     
     if (innerCircle) {
         innerSphere();
@@ -101,7 +97,7 @@ void ofApp::draw(){
     
     normalLineDraw();
     
-    cam.end();
+//    cam.end();
     
     if (bHide) {
         ofPushStyle();
@@ -109,6 +105,59 @@ void ofApp::draw(){
         gui.draw();
         ofPopStyle();
     }
+
+    
+    fbo.end();
+
+}
+
+//--------------------------------------------------------------
+void ofApp::update(){
+    
+    if (reSetting) {
+        setPoint3D(numCreators);
+        creatorSetting();
+    }
+    
+    frameRate = ofToString(ofGetFrameRate(),1);
+}
+
+
+//--------------------------------------------------------------
+void ofApp::draw(){
+    
+//    cam.begin();
+//    
+//    if (innerCircle) {
+//        innerSphere();
+//    }
+//    
+//    if (textureOnOff) {
+//        textureDraw();
+//    }
+//    
+//    if (meshOnOff) {
+//        mesh.draw();
+//    }
+//    
+//    //    darkMesh.draw();
+//    
+//    if (arcOnOff) {
+//        arcDrawing();
+//    }
+//    
+//    creatorDraw();
+//    
+//    normalLineDraw();
+//    
+//    cam.end();
+//    
+//    if (bHide) {
+//        ofPushStyle();
+//        ofDisableDepthTest();
+//        gui.draw();
+//        ofPopStyle();
+//    }
     
     
 }
@@ -370,9 +419,14 @@ void ofApp::keyReleased(int key){
     }
     
     if (key=='c') {
-        ofImage temp;
-        temp.grabScreen(0, 0, ofGetWidth(), ofGetHeight());
-        temp.saveImage("01.png");
+        ofPixels _p;
+        fbo.readToPixels(_p);
+        
+        ofImage _temp;
+        _temp.setFromPixels(_p.getPixels(), posSize.x, posSize.y, OF_IMAGE_COLOR_ALPHA);
+        string _file = "../../__" + ofGetTimestampString() + ".png";
+        _temp.saveImage(_file);
+        
     }
     
     
