@@ -46,11 +46,12 @@ public:
 	void windowResized(int w, int h);
 	void dragEvent(ofDragInfo dragInfo);
 	void gotMessage(ofMessage msg);
-    
+        
 	ofMesh mesh;
     ofMesh darkMesh;
 	vector<Point3D> point3D;
 	ofEasyCam cam;
+    ofMatrix4x4 camCapture;
 
 	float distance;
     
@@ -66,24 +67,27 @@ public:
     ofVbo vboLine;
     ofMesh allMesh;
     
-    
-    bool oneShot;
+    void alphaSliderTEst();
+
     
     int creatorNum;
-    
     
     bool bHide;
     
     ofxIntSlider numCreators;
-    ofxButton reSetting;
     ofxToggle innerCircle;
     ofxToggle textureOnOff;
     ofxToggle arcOnOff;
     ofxToggle meshOnOff;
+    ofxToggle darkPlane;
+    ofxButton screenCapture;
     ofxPanel gui;
     ofxFloatSlider randomHeight;
     ofxFloatSlider innerCircleSize;
+    ofxFloatSlider lineAlpha;
     ofxLabel frameRate;
+    ofxLabel fullScreenOnOff;
+    ofxLabel hideGui;
     
     void setPoint3D(int _num);
     
@@ -106,8 +110,17 @@ public:
     ofImage texture;
     void textureDraw();
     
+    void mainDrawing();
     
     ofFbo fbo;
     ofPoint posSize;
+    void captureFunction();
+    
+    void guiDrawing();
+    
+    void guiMouseReleased(ofMouseEventArgs &m);
+    bool inLineAlpha;
+    bool inNumCreators;
+    bool inRandomHeight;
     
 };

@@ -3,6 +3,7 @@
 // http://mathworld.wolfram.com/SphericalCoordinates.html
 // http://forum.openframeworks.cc/t/vector-maths-cross-vectors-and-a-circle-on-a-sphere/15760/9
 
+// TODO http://forum.openframeworks.cc/t/multithreaded-image-saver/1687
 
 
 #include "ofApp.h"
@@ -14,20 +15,23 @@ void ofApp::setup(){
     ofSetFrameRate(60);
     
     ofEnableAntiAliasing();
-//    ofEnableDepthTest();
+    ofEnableDepthTest();
     ofEnableAlphaBlending();
-//    ofEnableBlendMode(OF_BLENDMODE_ADD);
+    ofEnableBlendMode(OF_BLENDMODE_ADD);
     
-    posSize.x = 4961;
-    posSize.y = 7016;
+    glPointSize(1);
+    glLineWidth(4);
+    
+    posSize.x = 4000;
+    posSize.y = 4000;
+    
     fbo.allocate(posSize.x, posSize.y, GL_RGBA);
-    
     
     ofDisableArbTex();
     texture.loadImage("pluto.jpg");
-    texture.getTextureReference().setTextureWrap(GL_REPEAT, GL_REPEAT );
+    texture.getTextureReference().setTextureWrap( GL_REPEAT, GL_REPEAT );
     sphere.setMode( OF_PRIMITIVE_TRIANGLES );
-
+    
     baseColor = ofColor(255, 180);
     
     mesh.setMode(OF_PRIMITIVE_LINES);
@@ -37,128 +41,92 @@ void ofApp::setup(){
     
     creatorNum = 1500;
     
+    ofAddListener(ofEvents().mouseReleased, this, &ofApp::guiMouseReleased, OF_EVENT_ORDER_BEFORE_APP);
+    
     gui.setup();
-    gui.add(numCreators.setup("Num Creators", creatorNum, 0, 6000));
+    gui.add(hideGui.setup("h key GUI Menu OnOff", ""));
+    gui.add(fullScreenOnOff.setup("f key Full Screen", ""));
+    gui.add(numCreators.setup("Num Creators", creatorNum, 0, 4500));
     gui.add(randomHeight.setup("Random Height", 0.025, 0, 0.05));
-    gui.add(reSetting.setup("ReDrawing"));
+    gui.add(lineAlpha.setup("Line Alpha", 80, 0, 255));
     gui.add(meshOnOff.setup("Default Draw", true));
+    gui.add(darkPlane.setup("Dark Plane", false));
     gui.add(arcOnOff.setup("Arc Draw", false));
     gui.add(innerCircle.setup("Base Sphere", true));
     gui.add(textureOnOff.setup("Texture", false));
     gui.add(innerCircleSize.setup("Inner Size", 0.95, 0.9, 1.1));
     gui.add(frameRate.setup("FPS", ""));
+    gui.add(screenCapture.setup("Screen Capture"));
+    
     
     setPoint3D(creatorNum);
-//    polarPositionProb();
+    //    polarPositionProb();
     creatorSetting();
     
-    glPointSize(1);
-    
     fullScreen = false;
-    oneShot = false;
     bHide = true;
     innerCircle = false;
     
-//    light.setAttenuation();
-    light.setPosition(-100, 100, 100);
-
-
+    //    light.setAttenuation();
+    //    light.setPosition(-100, 100, 100);
     
+    inLineAlpha = false;
+    inNumCreators = false;
+    inRandomHeight = false;
     
-    fbo.begin();
-    
-    ofClear(0,0);
-    
-    ofTranslate(posSize.x*0.5, posSize.y*0.5);
-    
-    ofScale(3, 3, 3);
-    
-//    cam.begin();
-    
-    if (innerCircle) {
-        innerSphere();
-    }
-    
-    if (textureOnOff) {
-        textureDraw();
-    }
-    
-    if (meshOnOff) {
-        mesh.draw();
-    }
-    
-    //    darkMesh.draw();
-    
-    if (arcOnOff) {
-        arcDrawing();
-    }
-    
-    creatorDraw();
-    
-    normalLineDraw();
-    
-//    cam.end();
-    
-    if (bHide) {
-        ofPushStyle();
-        ofDisableDepthTest();
-        gui.draw();
-        ofPopStyle();
-    }
-
-    
-    fbo.end();
-
 }
+
+void ofApp::guiMouseReleased(ofMouseEventArgs &m){
+    
+    ofRectangle _lineAlphaRect = lineAlpha.getShape();
+    if (_lineAlphaRect.inside(m.x, m.y)) inLineAlpha = true;
+    
+    ofRectangle _numCreators = numCreators.getShape();
+    if (_numCreators.inside(m.x, m.y)) inNumCreators = true;
+    
+    ofRectangle _randomHeight = randomHeight.getShape();
+    if (_randomHeight.inside(m.x, m.y)) inRandomHeight = true;
+    
+    if (inRandomHeight||inLineAlpha||inNumCreators) {
+        setPoint3D(numCreators);
+        creatorSetting();
+        inLineAlpha = false;
+        inNumCreators = false;
+        inRandomHeight = false;
+    }
+
+    // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhh!!!!!! (vom meinem Sohn)
+    
+}
+
 
 //--------------------------------------------------------------
 void ofApp::update(){
     
-    if (reSetting) {
-        setPoint3D(numCreators);
-        creatorSetting();
-    }
+    baseColor = ofColor(255, lineAlpha);
     
     frameRate = ofToString(ofGetFrameRate(),1);
+    
+    if (screenCapture) {
+        captureFunction();
+    }
+    
+    
 }
 
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     
-//    cam.begin();
-//    
-//    if (innerCircle) {
-//        innerSphere();
-//    }
-//    
-//    if (textureOnOff) {
-//        textureDraw();
-//    }
-//    
-//    if (meshOnOff) {
-//        mesh.draw();
-//    }
-//    
-//    //    darkMesh.draw();
-//    
-//    if (arcOnOff) {
-//        arcDrawing();
-//    }
-//    
-//    creatorDraw();
-//    
-//    normalLineDraw();
-//    
-//    cam.end();
-//    
-//    if (bHide) {
-//        ofPushStyle();
-//        ofDisableDepthTest();
-//        gui.draw();
-//        ofPopStyle();
-//    }
+    cam.begin();
+    mainDrawing();
+    cam.end();
     
+    camCapture = cam.getGlobalTransformMatrix();
+    
+    if (bHide) {
+        guiDrawing();
+    }
     
 }
 
@@ -238,8 +206,8 @@ void ofApp::arcDrawing(){
         ofVec3f _norm14 = (_point14 - ofVec3f(0,0,0)).normalize();
         ofVec3f _norm34 = (_point34 - ofVec3f(0,0,0)).normalize();
         
-        ofVec3f _pt14 = _point14.normalize() * (point3D[i].radius + 140);
-        ofVec3f _pt34 = _point34.normalize() * (point3D[i].radius + 140);
+        ofVec3f _pt14 = _point14.normalize() * (point3D[i].radius + 70);
+        ofVec3f _pt34 = _point34.normalize() * (point3D[i].radius + 70);
         
         ofNoFill();
         ofBezier(_startPoint.x, _startPoint.y, _startPoint.z,
@@ -310,13 +278,11 @@ void ofApp::creatorSetting(){
         point3D[i].v = point3D[i].norm.crossed(point3D[i].u);
         
         for (int t = 0; t <= 360; t+=10) {
-            
             float _rad = ofDegToRad(t);
             ofVec3f pt = point3D[i].p2 + point3D[i].radiusCreater * cos(_rad) * point3D[i].u + point3D[i].radiusCreater * sin(_rad) * point3D[i].v;
             
             ofColor _c = ofColor(baseColor);
             point3D[i].createrMesh.addColor(_c);
-            
             point3D[i].createrMesh.addVertex(pt);
             point3D[i].vboCreator.setMesh(point3D[i].createrMesh, GL_STATIC_DRAW);
         }
@@ -331,10 +297,11 @@ void ofApp::creatorSetting(){
 void ofApp::creatorDraw(){
     
     ofPushStyle();
-    ofSetColor(baseColor);
+    
     for (int i=0; i<point3D.size(); i++) {
         point3D[i].vboCreator.draw(GL_LINE_STRIP, 0, 37);
     }
+    
     ofPopStyle();
     
 }
@@ -357,12 +324,17 @@ void ofApp::normalLineDraw(){
 //--------------------------------------------------------------
 void ofApp::innerSphere(){
     
+    ofEnableDepthTest();
+    ofEnableAlphaBlending();
+    
     ofPushStyle();
-
+    
     sphere.setRadius(point3D[0].radius * innerCircleSize);
+    
     baseLunar = sphere.getMesh();
+    //    baseLunar.enableColors();
     for (int i=0; i<baseLunar.getNumVertices(); i++) {
-        ofColor _c = ofColor(0, 150);
+        ofColor _c = ofColor(10, 10);
         baseLunar.addColor(_c);
     }
     
@@ -376,8 +348,11 @@ void ofApp::innerSphere(){
 //--------------------------------------------------------------
 void ofApp::textureDraw(){
     
+    ofEnableDepthTest();
+    ofEnableAlphaBlending();
+    
     ofPushStyle();
-
+    
     sphere.setRadius(point3D[0].radius * innerCircleSize);
     
     texture.getTextureReference().bind();
@@ -385,7 +360,7 @@ void ofApp::textureDraw(){
     sphere.draw();
     
     ofPopStyle();
-
+    
 }
 
 
@@ -396,6 +371,82 @@ void ofApp::satellit(){
 }
 
 
+//--------------------------------------------------------------
+void ofApp::mainDrawing(){
+    
+    ofEnableDepthTest();
+    ofEnableAlphaBlending();
+    
+    if (innerCircle) {
+        innerSphere();
+    }
+    
+    if (textureOnOff) {
+        textureDraw();
+    }
+    
+    if (meshOnOff) {
+        mesh.draw();
+    }
+    
+    if (darkPlane) {
+        darkMesh.draw();
+    }
+    
+    if (arcOnOff) {
+        arcDrawing();
+    }
+    
+    creatorDraw();
+    
+    normalLineDraw();
+    
+}
+
+
+//--------------------------------------------------------------
+void ofApp::captureFunction(){
+    
+    fbo.begin();
+    ofClear(0,0);
+    
+    ofPushMatrix();
+    ofScale(2, 2, 2);
+    
+    cam.setTransformMatrix(camCapture);
+    
+    cam.begin();
+    mainDrawing();
+    cam.end();
+    
+    if (bHide) {
+        guiDrawing();
+    }
+    
+    fbo.end();
+    
+    ofPixels _p;
+    fbo.readToPixels(_p);
+    
+    ofImage _temp;
+    _temp.setFromPixels(_p.getPixels(), posSize.x, posSize.y, OF_IMAGE_COLOR_ALPHA);
+    string _file = "../../__" + ofGetTimestampString() + ".png";
+    _temp.saveImage(_file);
+    
+}
+
+
+//--------------------------------------------------------------
+void ofApp::guiDrawing(){
+    
+    ofPushMatrix();
+    ofPushStyle();
+    ofDisableDepthTest();
+    gui.draw();
+    ofPopStyle();
+    ofPopMatrix();
+    
+}
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
@@ -410,25 +461,9 @@ void ofApp::keyReleased(int key){
         ofSetFullscreen(fullScreen);
     }
     
-    if( key == 's' ){
-        oneShot = true;
-    }
-    
     if (key == 'h') {
         bHide = !bHide;
     }
-    
-    if (key=='c') {
-        ofPixels _p;
-        fbo.readToPixels(_p);
-        
-        ofImage _temp;
-        _temp.setFromPixels(_p.getPixels(), posSize.x, posSize.y, OF_IMAGE_COLOR_ALPHA);
-        string _file = "../../__" + ofGetTimestampString() + ".png";
-        _temp.saveImage(_file);
-        
-    }
-    
     
 }
 
