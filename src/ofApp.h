@@ -79,6 +79,8 @@ public:
     ofxToggle textureOnOff;
     ofxToggle arcOnOff;
     ofxToggle meshOnOff;
+    ofxToggle lineOnOff;
+    ofxToggle creatorOnOff;
     ofxToggle darkPlane;
     ofxButton screenCapture;
     ofxPanel gui;

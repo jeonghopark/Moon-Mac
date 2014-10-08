@@ -50,6 +50,8 @@ void ofApp::setup(){
     gui.add(randomHeight.setup("Random Height", 0.025, 0, 0.05));
     gui.add(lineAlpha.setup("Line Alpha", 80, 0, 255));
     gui.add(meshOnOff.setup("Default Draw", true));
+    gui.add(lineOnOff.setup("Normal Line", true));
+    gui.add(creatorOnOff.setup("Creator", true));
     gui.add(darkPlane.setup("Dark Plane", false));
     gui.add(arcOnOff.setup("Arc Draw", false));
     gui.add(innerCircle.setup("Base Sphere", true));
@@ -59,8 +61,8 @@ void ofApp::setup(){
     gui.add(screenCapture.setup("Screen Capture"));
     
     
-    setPoint3D(creatorNum);
-    //    polarPositionProb();
+//    setPoint3D(creatorNum);
+    polarPositionProb();
     creatorSetting();
     
     fullScreen = false;
@@ -88,7 +90,8 @@ void ofApp::guiMouseReleased(ofMouseEventArgs &m){
     if (_randomHeight.inside(m.x, m.y)) inRandomHeight = true;
     
     if (inRandomHeight||inLineAlpha||inNumCreators) {
-        setPoint3D(numCreators);
+//        setPoint3D(numCreators);
+        polarPositionProb();
         creatorSetting();
         inLineAlpha = false;
         inNumCreators = false;
@@ -223,10 +226,16 @@ void ofApp::arcDrawing(){
 
 //--------------------------------------------------------------
 void ofApp::polarPositionProb(){
-    
+
+    mesh.clear();
+    darkMesh.clear();
+
     point3D.resize(creatorNum);
     
     for (int i = 0; i < point3D.size(); i++){
+        
+        point3D[i].createrMesh.clear();
+
         point3D[i].radius = ofRandom(1-randomHeight, 1+randomHeight)*ofGetHeight()*0.37;
         point3D[i].degree3D = ofVec3f(ofRandom(PI), ofRandom(TWO_PI), ofRandom(360));
         
@@ -237,9 +246,13 @@ void ofApp::polarPositionProb(){
         ofVec3f _point3D = ofVec3f(_x, _y, _z);
         mesh.addVertex(_point3D);
         
-        ofColor _c = ofColor(255, 70);
+        ofColor _c = ofColor(baseColor);
         mesh.addColor(_c);
         point3D[i].point3DRaw = _point3D;
+
+        darkMesh.addVertex(_point3D);
+        ofColor _cB = ofColor(0, 80);
+        darkMesh.addColor(_cB);
     }
     
     distance = 50;
@@ -253,6 +266,10 @@ void ofApp::polarPositionProb(){
             if (_distanceM <= distance) {
                 mesh.addIndex(a);
                 mesh.addIndex(b);
+            }
+            if ((_distanceM < 100)&&(_distanceM > 50)) {
+                darkMesh.addIndex(a);
+                darkMesh.addIndex(b);
             }
         }
     }
@@ -397,9 +414,13 @@ void ofApp::mainDrawing(){
         arcDrawing();
     }
     
-    creatorDraw();
+    if (creatorOnOff) {
+        creatorDraw();
+    }
     
-    normalLineDraw();
+    if (lineOnOff) {
+        normalLineDraw();
+    }
     
 }
 
