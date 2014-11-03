@@ -11,6 +11,13 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
     
+    
+#ifdef DEBUG
+    
+#else
+    ofSetDataPathRoot("../Resources/");
+#endif
+
     ofBackground(0,0);
     ofSetFrameRate(60);
     
@@ -28,7 +35,13 @@ void ofApp::setup(){
     fbo.allocate(posSize.x, posSize.y, GL_RGBA);
     
     ofDisableArbTex();
+
+#ifdef DEBUG
     texture.loadImage("pluto.jpg");
+#else
+    texture.loadImage("data/pluto.jpg");
+#endif
+    
     texture.getTextureReference().setTextureWrap( GL_REPEAT, GL_REPEAT );
     sphere.setMode( OF_PRIMITIVE_TRIANGLES );
     
