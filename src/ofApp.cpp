@@ -13,11 +13,14 @@ void ofApp::setup(){
     
     
 #ifdef DEBUG
-    
+    texture.load("pluto.jpg");
 #else
     ofSetDataPathRoot("../Resources/");
+    texture.load("data/pluto.jpg");
 #endif
 
+    
+    
     ofBackground(0,0);
     ofSetFrameRate(60);
     
@@ -29,6 +32,11 @@ void ofApp::setup(){
     glPointSize(1);
     glLineWidth(4);
     
+    
+    cam.setAutoDistance(false);
+    cam.setDistance(700);
+    
+    
     posSize.x = 4000;
     posSize.y = 4000;
     
@@ -36,11 +44,7 @@ void ofApp::setup(){
     
     ofDisableArbTex();
 
-#ifdef DEBUG
-    texture.loadImage("pluto.jpg");
-#else
-    texture.loadImage("data/pluto.jpg");
-#endif
+
     
     texture.getTextureReference().setTextureWrap( GL_REPEAT, GL_REPEAT );
     sphere.setMode( OF_PRIMITIVE_TRIANGLES );
