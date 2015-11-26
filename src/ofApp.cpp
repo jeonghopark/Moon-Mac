@@ -8,6 +8,8 @@
 
 #include "ofApp.h"
 
+
+
 //--------------------------------------------------------------
 void ofApp::setup(){
     
@@ -46,7 +48,7 @@ void ofApp::setup(){
 
 
     
-    texture.getTextureReference().setTextureWrap( GL_REPEAT, GL_REPEAT );
+    texture.getTexture().setTextureWrap( GL_REPEAT, GL_REPEAT );
     sphere.setMode( OF_PRIMITIVE_TRIANGLES );
     
     baseColor = ofColor(255, 180);
@@ -95,6 +97,9 @@ void ofApp::setup(){
     
 }
 
+
+
+//--------------------------------------------------------------
 void ofApp::guiMouseReleased(ofMouseEventArgs &m){
     
     ofRectangle _lineAlphaRect = lineAlpha.getShape();
@@ -106,13 +111,16 @@ void ofApp::guiMouseReleased(ofMouseEventArgs &m){
     ofRectangle _randomHeight = randomHeight.getShape();
     if (_randomHeight.inside(m.x, m.y)) inRandomHeight = true;
     
+
     if (inRandomHeight||inLineAlpha||inNumCreators) {
-//        setPoint3D(numCreators);
+    
+        creatorNum = numCreators;
         polarPositionProb();
         creatorSetting();
         inLineAlpha = false;
         inNumCreators = false;
         inRandomHeight = false;
+        
     }
 
     // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhh!!!!!! (vom meinem Sohn)
