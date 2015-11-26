@@ -6,6 +6,7 @@
 // TODO http://forum.openframeworks.cc/t/multithreaded-image-saver/1687
 
 
+
 #include "ofApp.h"
 
 
@@ -15,10 +16,9 @@ void ofApp::setup(){
     
     
 #ifdef DEBUG
-    texture.load("pluto.jpg");
+
 #else
-    ofSetDataPathRoot("../Resources/");
-    texture.load("data/pluto.jpg");
+    ofSetDataPathRoot("../Resources/data");
 #endif
 
     
@@ -31,8 +31,8 @@ void ofApp::setup(){
     ofEnableAlphaBlending();
     ofEnableBlendMode(OF_BLENDMODE_ADD);
     
-    glPointSize(1);
-    glLineWidth(4);
+//    glPointSize(1);
+//    glLineWidth(4);
     
     
     cam.setAutoDistance(false);
@@ -45,6 +45,9 @@ void ofApp::setup(){
     fbo.allocate(posSize.x, posSize.y, GL_RGBA);
     
     ofDisableArbTex();
+
+    
+    texture.load("pluto.jpg");
 
 
     
@@ -59,7 +62,9 @@ void ofApp::setup(){
     allMesh.setMode(OF_PRIMITIVE_LINES);
     
     creatorNum = 1500;
-    
+    lineAlpha = 80;
+    baseColor = ofColor(255, lineAlpha);
+
     ofAddListener(ofEvents().mouseReleased, this, &ofApp::guiMouseReleased, OF_EVENT_ORDER_BEFORE_APP);
     
     gui.setup();
@@ -120,7 +125,7 @@ void ofApp::guiMouseReleased(ofMouseEventArgs &m){
         inLineAlpha = false;
         inNumCreators = false;
         inRandomHeight = false;
-        
+        baseColor = ofColor(255, lineAlpha);
     }
 
     // aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaahhhhh!!!!!! (vom meinem Sohn)
@@ -248,7 +253,7 @@ void ofApp::arcDrawing(){
         ofVec3f _pt34 = _point34.normalize() * (point3D[i].radius + 70);
         
         ofNoFill();
-        ofBezier(_startPoint.x, _startPoint.y, _startPoint.z,
+        ofDrawBezier(_startPoint.x, _startPoint.y, _startPoint.z,
                  _pt14.x, _pt14.y, _pt14.z,
                  _pt34.x, _pt34.y, _pt34.z,
                  _endPoint.x, _endPoint.y, _endPoint.z);
@@ -326,8 +331,8 @@ void ofApp::creatorSetting(){
         
         point3D[i].norm = (point3D[i].p2 - point3D[i].p1).normalize();
         
-        point3D[i].u = point3D[i].norm.crossed(ofVec3f(1, 0, 0));
-        point3D[i].v = point3D[i].norm.crossed(point3D[i].u);
+        point3D[i].u = point3D[i].norm.getCrossed(ofVec3f(1, 0, 0));
+        point3D[i].v = point3D[i].norm.getCrossed(point3D[i].u);
         
         for (int t = 0; t <= 360; t+=10) {
             float _rad = ofDegToRad(t);
@@ -365,7 +370,7 @@ void ofApp::normalLineDraw(){
     ofPushStyle();
     ofSetColor(baseColor);
     for (int i=0; i<point3D.size(); i++) {
-        ofLine(point3D[i].p2*0.9, point3D[i].p2*1.05);
+        ofDrawLine(point3D[i].p2*0.9, point3D[i].p2*1.05);
     }
     ofPopStyle();
     
@@ -407,7 +412,7 @@ void ofApp::textureDraw(){
     
     sphere.setRadius(point3D[0].radius * innerCircleSize);
     
-    texture.getTextureReference().bind();
+    texture.getTexture().bind();
     
     sphere.draw();
     
@@ -485,9 +490,9 @@ void ofApp::captureFunction(){
     fbo.readToPixels(_p);
     
     ofImage _temp;
-    _temp.setFromPixels(_p.getPixels(), posSize.x, posSize.y, OF_IMAGE_COLOR_ALPHA);
+    _temp.setFromPixels(_p.getData(), posSize.x, posSize.y, OF_IMAGE_COLOR_ALPHA);
     string _file = "../../__" + ofGetTimestampString() + ".png";
-    _temp.saveImage(_file);
+    _temp.save(_file);
     
 }
 
