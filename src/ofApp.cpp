@@ -136,7 +136,7 @@ void ofApp::guiMouseReleased(ofMouseEventArgs &m){
 //--------------------------------------------------------------
 void ofApp::update(){
     
-    baseColor = ofColor(255, lineAlpha);
+//    baseColor = ofColor(255, lineAlpha);
     
     frameRate = ofToString(ofGetFrameRate(),1);
     
@@ -144,7 +144,7 @@ void ofApp::update(){
         captureFunction();
     }
     
-    rotateY = rotateY + 0.125;
+    rotateY = rotateY + 0.1;
     
 }
 
@@ -162,7 +162,7 @@ void ofApp::draw(){
     if (bHide) {
         guiDrawing();
     }
-    
+
 }
 
 //--------------------------------------------------------------
